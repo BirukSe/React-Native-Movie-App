@@ -3,6 +3,7 @@ import SearchBar from '@/components/SearchBar'
 import { icons } from '@/constants/icons'
 import { images } from '@/constants/images'
 import { fetchMovies } from '@/services/api'
+import { updateSearchCount } from '@/services/appwrite'
 import useFetch from '@/services/useFetch'
 import { useRouter } from 'expo-router'
 import React, { useEffect, useState } from 'react'
@@ -13,9 +14,11 @@ const Search = () => {
     const router=useRouter();
     const {data: movies,loading:moviesLoading,error:moviesError,fetchData: loadMovies, reset}=useFetch(()=>fetchMovies({query: searchQuery}),false);
     useEffect(()=>{
+        // updateSearchCount(searchQuery,movies[0]);
         const timeoutId=setTimeout(async()=>{
              if(searchQuery.trim()){
             await loadMovies();
+           
         }else{
             reset();
         }
@@ -25,6 +28,15 @@ const Search = () => {
        
 
     },[searchQuery])
+    useEffect(() => {
+        const updateCount = async () => {
+            if (movies?.length > 0 && movies?.[0]) {
+                console.log("making a request with", searchQuery, movies[0]);
+                await updateSearchCount(searchQuery, movies[0]);
+            }
+        };
+        updateCount();
+    }, [movies]);
   return (
     <View className="flex-1 bg-primary">
      <Image source={images.bg} className="flex-1 absolute w-full z-0" resizeMode='cover'/>
